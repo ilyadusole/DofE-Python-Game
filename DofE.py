@@ -1,27 +1,28 @@
-
-#Platformer Game
-
+"""
+Platformer Game
+"""
 import arcade
 
 # Constants
-SCREEN_WIDTH = 1500
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Platformer"
 
 # Constants used to scale our sprites from their original size
 CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
+COIN_SCALING = 0.5
 
 # Movement speed of player, in pixels per frame
-
-PLAYER_MOVEMENT_SPEED = 7
+PLAYER_MOVEMENT_SPEED = 5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 20
 
-class MyGame(arcade.Window):
-    
-    #Main application
 
+class MyGame(arcade.Window):
+    """
+    Main application class.
+    """
 
     def __init__(self):
 
@@ -35,18 +36,19 @@ class MyGame(arcade.Window):
         self.player_sprite = None
 
         # Our physics engine
-
         self.physics_engine = None
 
-
         # A Camera that can be used for scrolling the screen
-
         self.camera = None
+
+        # Load sounds
+        self.collect_coin_sound = arcade.load_sound(":resources:sounds/coin1.wav")
+        self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
 
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
     def setup(self):
-        #Set up the game here. Call this function to restart the game.#
+        """Set up the game here. Call this function to restart the game."""
 
         # Set up the Camera
         self.camera = arcade.Camera(self.width, self.height)
@@ -81,15 +83,20 @@ class MyGame(arcade.Window):
             wall.position = coordinate
             self.scene.add_sprite("Walls", wall)
 
-    # Create the 'physics engine'
-            self.physics_engine = arcade.PhysicsEnginePlatformer(
-                self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
-            )
-        
-        
+        # Use a loop to place some coins for our character to pick up
+        for x in range(128, 1250, 256):
+            coin = arcade.Sprite(":resources:images/items/coinGold.png", COIN_SCALING)
+            coin.center_x = x
+            coin.center_y = 96
+            self.scene.add_sprite("Coins", coin)
+
+        # Create the 'physics engine'
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
+        )
 
     def on_draw(self):
-        #Render the screen.
+        """Render the screen."""
 
         # Clear the screen to the background color
         self.clear()
@@ -100,40 +107,24 @@ class MyGame(arcade.Window):
         # Draw our Scene
         self.scene.draw()
 
-
     def on_key_press(self, key, modifiers):
-
-        #Called whenever a key is pressed.
-
-
+        """Called whenever a key is pressed."""
 
         if key == arcade.key.UP or key == arcade.key.W:
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
-
+                arcade.play_sound(self.jump_sound)
         elif key == arcade.key.LEFT or key == arcade.key.A:
-
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-
         elif key == arcade.key.RIGHT or key == arcade.key.D:
-
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED 
-
-
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
 
     def on_key_release(self, key, modifiers):
-
-        #Called when the user releases a key.
-
-
-        
+        """Called when the user releases a key."""
 
         if key == arcade.key.LEFT or key == arcade.key.A:
-
             self.player_sprite.change_x = 0
-
         elif key == arcade.key.RIGHT or key == arcade.key.D:
-
             self.player_sprite.change_x = 0
 
     def center_camera_to_player(self):
@@ -141,8 +132,6 @@ class MyGame(arcade.Window):
         screen_center_y = self.player_sprite.center_y - (
             self.camera.viewport_height / 2
         )
-
-        # Don't let camera travel past 0
         if screen_center_x < 0:
             screen_center_x = 0
         if screen_center_y < 0:
@@ -151,26 +140,30 @@ class MyGame(arcade.Window):
 
         self.camera.move_to(player_centered)
 
-
-
-
     def on_update(self, delta_time):
-
-        # Movement and game logic#
-
-
+        """Movement and game logic"""
 
         # Move the player with the physics engine
-
         self.physics_engine.update()
+
+        # See if we hit any coins
+        coin_hit_list = arcade.check_for_collision_with_list(
+            self.player_sprite, self.scene["Coins"]
+        )
+
+        # Loop through each coin we hit (if any) and remove it
+        for coin in coin_hit_list:
+            # Remove the coin
+            coin.remove_from_sprite_lists()
+            # Play a sound
+            arcade.play_sound(self.collect_coin_sound)
 
         # Position the camera
         self.center_camera_to_player()
 
 
-
 def main():
-    #Main function#
+    """Main function"""
     window = MyGame()
     window.setup()
     arcade.run()
