@@ -1,6 +1,6 @@
-
-############################DofePlatformer Game###########################
-
+"""
+Platformer Game
+"""
 import arcade
 
 # Constants
@@ -20,28 +20,22 @@ PLAYER_JUMP_SPEED = 20
 
 
 class MyGame(arcade.Window):
-    
-   ############################################################################### Main code stuff##########################################################
-    
+    """
+    Main application class.
+    """
 
     def __init__(self):
 
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
-        # camera to draw gui stuff
-        self.gui_camera = None
-
-        # Keep track of score
-        self.score = 0
-
-        #  Scene Object
+        # Our Scene Object
         self.scene = None
 
         # Separate variable that holds the player sprite
         self.player_sprite = None
 
-        #  physics engine
+        # Our physics engine
         self.physics_engine = None
 
         # A Camera that can be used for scrolling the screen
@@ -54,14 +48,7 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
     def setup(self):
-
-        self
-
-        # keep track of the score
-        self.score = 0
-
-        # Setup camera
-        self.gui_camera = arcade.Camera(self.width, self.height)
+        """Set up the game here. Call this function to restart the game."""
 
         # Set up the Camera
         self.camera = arcade.Camera(self.width, self.height)
@@ -69,41 +56,46 @@ class MyGame(arcade.Window):
         # Initialize Scene
         self.scene = arcade.Scene()
 
+<<<<<<< HEAD
         # Set up the player at coord.
+        image_source = ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png"
+=======
+        # Set up the player, specifically placing it at these coordinates.
         image_source = "cube.png"
+>>>>>>> parent of 495b990 (week 4)
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.scene.add_sprite("Player", self.player_sprite)
 
         # Create the ground
-        # loop to place multiple sprites horizontally
+        # This shows using a loop to place multiple sprites horizontally
         for x in range(0, 1250, 64):
             wall = arcade.Sprite(":resources:images/tiles/grassMid.png", TILE_SCALING)
             wall.center_x = x
             wall.center_y = 32
             self.scene.add_sprite("Walls", wall)
 
-        # Put crate on the ground
-        # coordinate list to place sprite
+        # Put some crates on the ground
+        # This shows using a coordinate list to place sprites
         coordinate_list = [[512, 96], [256, 96], [768, 96]]
 
         for coordinate in coordinate_list:
-            # Add crate on the ground
+            # Add a crate on the ground
             wall = arcade.Sprite(
                 ":resources:images/tiles/boxCrate_double.png", TILE_SCALING
             )
             wall.position = coordinate
             self.scene.add_sprite("Walls", wall)
 
-        # Use loop to place coins for character to pick up
+        # Use a loop to place some coins for our character to pick up
         for x in range(128, 1250, 256):
             coin = arcade.Sprite(":resources:images/items/coinGold.png", COIN_SCALING)
             coin.center_x = x
             coin.center_y = 96
             self.scene.add_sprite("Coins", coin)
 
-        # Create'physics engine'
+        # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
         )
@@ -111,27 +103,14 @@ class MyGame(arcade.Window):
     def on_draw(self):
         """Render the screen."""
 
-        # Clear screen to background color
+        # Clear the screen to the background color
         self.clear()
 
-        # Activate Camera
+        # Activate our Camera
         self.camera.use()
 
-        # Dra Scene
+        # Draw our Scene
         self.scene.draw()
-
-        # Activate the GUI camera before drawing GUI elements
-        self.gui_camera.use()
-
-        # Draw score on the screen crolling it with the view
-        score_text = f"Score: {self.score}"
-        arcade.draw_text(
-            score_text,
-            10,
-            10,
-            arcade.csscolor.WHITE,
-            18,
-        )
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -169,24 +148,22 @@ class MyGame(arcade.Window):
     def on_update(self, delta_time):
         """Movement and game logic"""
 
-        # Move player with physics engine
+        # Move the player with the physics engine
         self.physics_engine.update()
 
-        # See if hit coin
+        # See if we hit any coins
         coin_hit_list = arcade.check_for_collision_with_list(
             self.player_sprite, self.scene["Coins"]
         )
 
         # Loop through each coin we hit (if any) and remove it
         for coin in coin_hit_list:
-            # Remove  coin
+            # Remove the coin
             coin.remove_from_sprite_lists()
-            # Play sound
+            # Play a sound
             arcade.play_sound(self.collect_coin_sound)
-            # Add one to the score
-            self.score += 1
 
-        # Position  camera
+        # Position the camera
         self.center_camera_to_player()
 
 
