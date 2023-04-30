@@ -56,13 +56,8 @@ class MyGame(arcade.Window):
         # Initialize Scene
         self.scene = arcade.Scene()
 
-<<<<<<< HEAD
         # Set up the player at coord.
         image_source = ":resources:images/animated_characters/female_adventurer/femaleAdventurer_idle.png"
-=======
-        # Set up the player, specifically placing it at these coordinates.
-        image_source = "cube.png"
->>>>>>> parent of 495b990 (week 4)
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
