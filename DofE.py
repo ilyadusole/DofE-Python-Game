@@ -1,6 +1,6 @@
 """
 Platformer Game
-"""
+""""
 import arcade
 
 # Constants
